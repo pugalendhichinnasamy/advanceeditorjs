@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Advanced Table</title>
-    
+    <title>Editor.js with Merged Table Cells</title>
+
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     
-    <!-- Table Tool Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+    <!-- Alternative Table Plugin (Tabletune) -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-tabletune@latest"></script>
 
 </head>
 <body>
@@ -21,11 +21,12 @@
             autofocus: true,
             tools: {
                 table: {
-                    class: Table,
+                    class: TableTune,
                     inlineToolbar: true,
                     config: {
                         rows: 3,
                         cols: 3,
+                        allowCellMerge: true,  // Enables merging cells
                     }
                 }
             }
@@ -33,4 +34,3 @@
     </script>
 </body>
 </html>
-
