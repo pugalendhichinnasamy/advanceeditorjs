@@ -3,68 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Merged Table Cells</title>
+    <title>Editor.js with Mergeable Table</title>
 
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     
-    <!-- Handsontable (Advanced Table with Merging) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
+    <!-- Table Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
 
     <style>
-        /* Handsontable container styling */
-        .ht-editor {
+        table {
+            border-collapse: collapse;
             width: 100%;
-            overflow: auto;
+        }
+        td, th {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        .selected {
+            background-color: lightblue;
         }
     </style>
 </head>
 <body>
     <div id="editorjs"></div>
+    <button onclick="mergeCells()">Merge Selected</button>
+    <button onclick="splitCells()">Split Selected</button>
 
     <script>
-        class HandsontableBlock {
+        class CustomTable {
             static get toolbox() {
                 return {
-                    title: "Advanced Table",
-                    icon: "📊",
+                    title: 'Table',
+                    icon: '📊',
                 };
             }
 
-            constructor({ data, api }) {
-                this.api = api;
-                this.data = data || { rows: 3, cols: 3, tableData: [] };
+            constructor({ data }) {
+                this.data = data || { rows: 3, cols: 3, content: [] };
+                this.table = document.createElement('table');
+                this.selectedCells = [];
+
+                this.renderTable();
+                this.attachCellSelection();
             }
 
             render() {
-                this.container = document.createElement("div");
-                this.container.classList.add("ht-editor");
+                return this.table;
+            }
 
-                this.hot = new Handsontable(this.container, {
-                    data: this.data.tableData.length ? this.data.tableData : Handsontable.helper.createEmptySpreadsheetData(this.data.rows, this.data.cols),
-                    rowHeaders: true,
-                    colHeaders: true,
-                    contextMenu: true, // Right-click menu for merging
-                    mergeCells: true, // Enable merging cells
-                    licenseKey: "non-commercial-and-evaluation", // Free version
+            renderTable() {
+                this.table.innerHTML = '';
+                for (let i = 0; i < this.data.rows; i++) {
+                    let row = this.table.insertRow();
+                    for (let j = 0; j < this.data.cols; j++) {
+                        let cell = row.insertCell();
+                        cell.textContent = this.data.content[i]?.[j] || '';
+                        cell.dataset.row = i;
+                        cell.dataset.col = j;
+                        cell.onclick = () => this.toggleCellSelection(cell);
+                    }
+                }
+            }
+
+            toggleCellSelection(cell) {
+                if (cell.classList.contains('selected')) {
+                    cell.classList.remove('selected');
+                    this.selectedCells = this.selectedCells.filter(c => c !== cell);
+                } else {
+                    cell.classList.add('selected');
+                    this.selectedCells.push(cell);
+                }
+            }
+
+            attachCellSelection() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'm') mergeCells();
+                    if (e.key === 's') splitCells();
                 });
-
-                return this.container;
             }
 
             save() {
                 return {
-                    tableData: this.hot.getData(),
+                    rows: this.data.rows,
+                    cols: this.data.cols,
+                    content: Array.from(this.table.rows).map(row =>
+                        Array.from(row.cells).map(cell => cell.textContent)
+                    ),
                 };
             }
+        }
+
+        function mergeCells() {
+            if (editor.blocks.getCurrentBlockIndex() !== null) {
+                let cells = document.querySelectorAll('.selected');
+                if (cells.length < 2) return alert('Select at least two cells');
+
+                let firstCell = cells[0];
+                let text = cells.map(c => c.textContent).join(' ');
+                firstCell.textContent = text;
+                firstCell.setAttribute('colspan', cells.length);
+
+                for (let i = 1; i < cells.length; i++) {
+                    cells[i].remove();
+                }
+
+                document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected'));
+            }
+        }
+
+        function splitCells() {
+            let table = document.querySelector('table');
+            let mergedCells = table.querySelectorAll('[colspan]');
+            
+            mergedCells.forEach(cell => {
+                let colspan = parseInt(cell.getAttribute('colspan')) || 1;
+                cell.removeAttribute('colspan');
+                let row = cell.parentNode;
+                
+                for (let i = 1; i < colspan; i++) {
+                    let newCell = row.insertCell();
+                    newCell.textContent = '';
+                }
+            });
         }
 
         const editor = new EditorJS({
             holder: 'editorjs',
             autofocus: true,
             tools: {
-                advancedTable: HandsontableBlock,
+                table: CustomTable,
             }
         });
     </script>
