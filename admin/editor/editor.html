@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Table (Merge & Split) + Underline + Text Alignment</title>
+    <title>Editor.js with Table + Indentation</title>
 
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
@@ -11,14 +11,8 @@
     <!-- Table Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
 
-    <!-- Indent Plugin -->
+    <!-- Indent Plugin (Must be loaded before using) -->
     <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune/dist/bundle.js"></script>
-
-    <!-- Underline Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-
-    <!-- Text Alignment Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
 
     <style>
         table {
@@ -31,121 +25,25 @@
             text-align: center;
             cursor: pointer;
         }
-        .selected {
-            background-color: lightblue;
-        }
     </style>
 </head>
 <body>
     <div id="editorjs"></div>
-    <button onclick="mergeCells()">Merge Selected</button>
-    <button onclick="splitCells()">Split Selected</button>
 
     <script>
-        class CustomTable {
-            static get toolbox() {
-                return {
-                    title: 'Table',
-                    icon: '📊',
-                };
-            }
-
-            constructor({ data }) {
-                this.data = data || { rows: 3, cols: 3, content: [] };
-                this.table = document.createElement('table');
-                this.selectedCells = [];
-                this.renderTable();
-            }
-
-            render() {
-                return this.table;
-            }
-
-            renderTable() {
-                this.table.innerHTML = '';
-                for (let i = 0; i < this.data.rows; i++) {
-                    let row = this.table.insertRow();
-                    for (let j = 0; j < this.data.cols; j++) {
-                        let cell = row.insertCell();
-                        cell.textContent = this.data.content[i]?.[j] || '';
-                        cell.dataset.row = i;
-                        cell.dataset.col = j;
-                        cell.onclick = () => this.toggleCellSelection(cell);
-                    }
-                }
-            }
-
-            toggleCellSelection(cell) {
-                if (cell.classList.contains('selected')) {
-                    cell.classList.remove('selected');
-                    this.selectedCells = this.selectedCells.filter(c => c !== cell);
-                } else {
-                    cell.classList.add('selected');
-                    this.selectedCells.push(cell);
-                }
-            }
-
-            save() {
-                return {
-                    rows: this.data.rows,
-                    cols: this.data.cols,
-                    content: Array.from(this.table.rows).map(row =>
-                        Array.from(row.cells).map(cell => cell.textContent)
-                    ),
-                };
-            }
-        }
-
-        function mergeCells() {
-            let cells = document.querySelectorAll('.selected');
-            if (cells.length < 2) return alert('Select at least two cells');
-
-            let firstCell = cells[0];
-            let text = cells.map(c => c.textContent).join(' ');
-            firstCell.textContent = text;
-            firstCell.setAttribute('colspan', cells.length);
-
-            for (let i = 1; i < cells.length; i++) {
-                cells[i].remove();
-            }
-
-            document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected'));
-        }
-
-        function splitCells() {
-            let table = document.querySelector('table');
-            let mergedCells = table.querySelectorAll('[colspan]');
-            
-            mergedCells.forEach(cell => {
-                let colspan = parseInt(cell.getAttribute('colspan')) || 1;
-                cell.removeAttribute('colspan');
-                let row = cell.parentNode;
-                
-                for (let i = 1; i < colspan; i++) {
-                    let newCell = row.insertCell();
-                    newCell.textContent = '';
-                }
-            });
-        }
-
         const editor = new EditorJS({
             holder: 'editorjs',
             autofocus: true,
             tools: {
-                table: CustomTable,
+                table: {
+                    class: Table,
+                    inlineToolbar: true
+                },
                 indent: {
-                    class: IndentTune,
+                    class: window.IndentTune, // ✅ Correctly reference IndentTune
                     config: {
                         minLevel: 0,
                         maxLevel: 4
-                    }
-                },
-                underline: Underline,
-                textAlignment: {
-                    class: TextAlignmentBlockTune,
-                    config: {
-                        default: "left",
-                        levels: ["left", "center", "right", "justify"]
                     }
                 }
             }
