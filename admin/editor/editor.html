@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Mergeable Table</title>
+    <title>Editor.js with Table (Merge & Split) + Underline + Text Alignment</title>
 
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    
+
     <!-- Table Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+
+    <!-- Indent Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune/dist/bundle.js"></script>
+
+    <!-- Underline Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
+
+    <!-- Text Alignment Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
 
     <style>
         table {
@@ -20,6 +29,7 @@
             border: 1px solid black;
             padding: 8px;
             text-align: center;
+            cursor: pointer;
         }
         .selected {
             background-color: lightblue;
@@ -44,9 +54,7 @@
                 this.data = data || { rows: 3, cols: 3, content: [] };
                 this.table = document.createElement('table');
                 this.selectedCells = [];
-
                 this.renderTable();
-                this.attachCellSelection();
             }
 
             render() {
@@ -77,13 +85,6 @@
                 }
             }
 
-            attachCellSelection() {
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'm') mergeCells();
-                    if (e.key === 's') splitCells();
-                });
-            }
-
             save() {
                 return {
                     rows: this.data.rows,
@@ -96,21 +97,19 @@
         }
 
         function mergeCells() {
-            if (editor.blocks.getCurrentBlockIndex() !== null) {
-                let cells = document.querySelectorAll('.selected');
-                if (cells.length < 2) return alert('Select at least two cells');
+            let cells = document.querySelectorAll('.selected');
+            if (cells.length < 2) return alert('Select at least two cells');
 
-                let firstCell = cells[0];
-                let text = cells.map(c => c.textContent).join(' ');
-                firstCell.textContent = text;
-                firstCell.setAttribute('colspan', cells.length);
+            let firstCell = cells[0];
+            let text = cells.map(c => c.textContent).join(' ');
+            firstCell.textContent = text;
+            firstCell.setAttribute('colspan', cells.length);
 
-                for (let i = 1; i < cells.length; i++) {
-                    cells[i].remove();
-                }
-
-                document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected'));
+            for (let i = 1; i < cells.length; i++) {
+                cells[i].remove();
             }
+
+            document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected'));
         }
 
         function splitCells() {
@@ -134,6 +133,21 @@
             autofocus: true,
             tools: {
                 table: CustomTable,
+                indent: {
+                    class: IndentTune,
+                    config: {
+                        minLevel: 0,
+                        maxLevel: 4
+                    }
+                },
+                underline: Underline,
+                textAlignment: {
+                    class: TextAlignmentBlockTune,
+                    config: {
+                        default: "left",
+                        levels: ["left", "center", "right", "justify"]
+                    }
+                }
             }
         });
     </script>
