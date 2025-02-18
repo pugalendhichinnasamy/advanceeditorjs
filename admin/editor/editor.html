@@ -8,27 +8,63 @@
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     
-    <!-- Alternative Table Plugin (Tabletune) -->
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-tabletune@latest"></script>
+    <!-- Handsontable (Advanced Table with Merging) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
 
+    <style>
+        /* Handsontable container styling */
+        .ht-editor {
+            width: 100%;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
     <div id="editorjs"></div>
 
     <script>
+        class HandsontableBlock {
+            static get toolbox() {
+                return {
+                    title: "Advanced Table",
+                    icon: "📊",
+                };
+            }
+
+            constructor({ data, api }) {
+                this.api = api;
+                this.data = data || { rows: 3, cols: 3, tableData: [] };
+            }
+
+            render() {
+                this.container = document.createElement("div");
+                this.container.classList.add("ht-editor");
+
+                this.hot = new Handsontable(this.container, {
+                    data: this.data.tableData.length ? this.data.tableData : Handsontable.helper.createEmptySpreadsheetData(this.data.rows, this.data.cols),
+                    rowHeaders: true,
+                    colHeaders: true,
+                    contextMenu: true, // Right-click menu for merging
+                    mergeCells: true, // Enable merging cells
+                    licenseKey: "non-commercial-and-evaluation", // Free version
+                });
+
+                return this.container;
+            }
+
+            save() {
+                return {
+                    tableData: this.hot.getData(),
+                };
+            }
+        }
+
         const editor = new EditorJS({
             holder: 'editorjs',
             autofocus: true,
             tools: {
-                table: {
-                    class: TableTune,
-                    inlineToolbar: true,
-                    config: {
-                        rows: 3,
-                        cols: 3,
-                        allowCellMerge: true,  // Enables merging cells
-                    }
-                }
+                advancedTable: HandsontableBlock,
             }
         });
     </script>
