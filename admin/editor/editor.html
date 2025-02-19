@@ -5,27 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor.js - Fixed Version</title>
 
-    <!-- Editor.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-
-    <!-- Table Plugin -->
+    <!-- Load Plugins First -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/text-alignment@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@latest/dist/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
 
-    <!-- Indent Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@1.0.0/dist/bundle.js"></script>
-
-    <!-- Underline Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-
-    <!-- Text Alignment Plugin (Must be loaded before using it) -->
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
+    <!-- Load Editor.js Last -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 </head>
 <body>
     <div id="editorjs"></div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("TextAlignmentBlockTune loaded:", window.TextAlignmentBlockTune); // Debugging
+            console.log("TextAlignment loaded:", window.TextAlignment); // Debugging
+            console.log("IndentTune loaded:", window.IndentTune); // Debugging
 
             const editor = new EditorJS({
                 holder: 'editorjs',
@@ -52,7 +47,7 @@
                     },
                     underline: Underline,
                     textAlignment: {
-                        class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune, // ✅ Fix reference
+                        class: window.TextAlignment?.default || window.TextAlignment, // ✅ Correct reference
                         config: {
                             default: "left",
                             levels: ["left", "center", "right", "justify"]
