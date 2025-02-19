@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor.js - Fixed Version</title>
 
-    <!-- ✅ Load Plugins First -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@2.0.0"></script>
+    <!-- ✅ Load Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-
-    <!-- ✅ Load Editor.js Last -->
+    
+    <!-- ✅ Load Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 </head>
 <body>
@@ -29,7 +29,7 @@
                 autofocus: true,
                 tools: {
                     paragraph: {
-                        class: Paragraph,  // ✅ Fixed
+                        class: window.Paragraph?.default || window.Paragraph,  // ✅ Fixed
                         inlineToolbar: true
                     },
                     table: {
@@ -37,7 +37,7 @@
                         inlineToolbar: true
                     },
                     indent: {
-                        class: window.IndentTune?.default || window.IndentTune, 
+                        class: window.IndentTune?.default || window.IndentTune,  // ✅ Fixed
                         config: {
                             minLevel: 0,
                             maxLevel: 4
@@ -45,7 +45,7 @@
                     },
                     underline: Underline,
                     textAlignment: {
-                        class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune,
+                        class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune,  // ✅ Fixed
                         config: {
                             default: "left",
                             levels: ["left", "center", "right", "justify"]
