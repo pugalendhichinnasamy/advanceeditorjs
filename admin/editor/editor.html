@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><!DOCTYPE html>
-<html lang="en">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor.js - Fixed Version</title>
@@ -49,62 +46,6 @@
                     underline: Underline,
                     textAlignment: {
                         class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune,
-                        config: {
-                            default: "left",
-                            levels: ["left", "center", "right", "justify"]
-                        }
-                    }
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js - Fixed Version</title>
-
-    <!-- ✅ Load Plugins First (Correct Versions) -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@2.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@calumk/editorjs-text-alignment@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@sotaprojects/editorjs-indent-tune@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-
-    <!-- ✅ Load Editor.js Last -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-</head>
-<body>
-    <div id="editorjs"></div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("TextAlignment loaded:", window.TextAlignment);
-            console.log("IndentTune loaded:", window.IndentTune);
-            console.log("Paragraph loaded:", window.Paragraph);
-
-            const editor = new EditorJS({
-                holder: 'editorjs',
-                autofocus: true,
-                tools: {
-                    paragraph: {
-                        class: Paragraph,  // ✅ Now it exists
-                        inlineToolbar: true
-                    },
-                    table: {
-                        class: Table,
-                        inlineToolbar: true
-                    },
-                    indent: {
-                        class: window.IndentTune?.default || window.IndentTune, 
-                        config: {
-                            minLevel: 0,
-                            maxLevel: 4
-                        }
-                    },
-                    underline: Underline,
-                    textAlignment: {
-                        class: window.TextAlignment?.default || window.TextAlignment,
                         config: {
                             default: "left",
                             levels: ["left", "center", "right", "justify"]
