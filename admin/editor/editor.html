@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Table + Indentation</title>
+    <title>Editor.js - Fixed Version</title>
 
     <!-- Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
@@ -11,42 +11,55 @@
     <!-- Table Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
 
-    <!-- Indent Plugin (Must be loaded before using) -->
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune/dist/bundle.js"></script>
+    <!-- Indent Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@1.0.0/dist/bundle.js"></script>
 
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        td, th {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-        }
-    </style>
+    <!-- Underline Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
+
+    <!-- Text Alignment Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
 </head>
 <body>
     <div id="editorjs"></div>
 
     <script>
-        const editor = new EditorJS({
-            holder: 'editorjs',
-            autofocus: true,
-            tools: {
-                table: {
-                    class: Table,
-                    inlineToolbar: true
-                },
-                indent: {
-                    class: window.IndentTune, // ✅ Correctly reference IndentTune
-                    config: {
-                        minLevel: 0,
-                        maxLevel: 4
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("IndentTune loaded:", window.IndentTune); // Debugging
+
+            const editor = new EditorJS({
+                holder: 'editorjs',
+                autofocus: true,
+                tools: {
+                    paragraph: {
+                        class: window.Paragraph || class {
+                            static get toolbox() {
+                                return { title: "Paragraph", icon: "📝" };
+                            }
+                        },
+                        inlineToolbar: true
+                    },
+                    table: {
+                        class: Table,
+                        inlineToolbar: true
+                    },
+                    indent: {
+                        class: window.IndentTune?.default || window.IndentTune, // ✅ FIX: Use correct reference
+                        config: {
+                            minLevel: 0,
+                            maxLevel: 4
+                        }
+                    },
+                    underline: Underline,
+                    textAlignment: {
+                        class: TextAlignmentBlockTune,
+                        config: {
+                            default: "left",
+                            levels: ["left", "center", "right", "justify"]
+                        }
                     }
                 }
-            }
+            });
         });
     </script>
 </body>
