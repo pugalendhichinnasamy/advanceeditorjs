@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor.js - Fixed Version</title>
 
-    <!-- Load Plugins First -->
+    <!-- ✅ Load Plugins First (Use Correct CDN Links) -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/text-alignment@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@latest/dist/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@1.0.0/dist/bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
 
-    <!-- Load Editor.js Last -->
+    <!-- ✅ Load Editor.js Last -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 </head>
 <body>
@@ -19,19 +19,15 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("TextAlignment loaded:", window.TextAlignment); // Debugging
-            console.log("IndentTune loaded:", window.IndentTune); // Debugging
+            console.log("TextAlignment loaded:", window.TextAlignment);
+            console.log("IndentTune loaded:", window.IndentTune);
 
             const editor = new EditorJS({
                 holder: 'editorjs',
                 autofocus: true,
                 tools: {
                     paragraph: {
-                        class: window.Paragraph || class {
-                            static get toolbox() {
-                                return { title: "Paragraph", icon: "📝" };
-                            }
-                        },
+                        class: Paragraph,
                         inlineToolbar: true
                     },
                     table: {
@@ -39,7 +35,7 @@
                         inlineToolbar: true
                     },
                     indent: {
-                        class: window.IndentTune?.default || window.IndentTune, // ✅ Fix IndentTune reference
+                        class: window.IndentTune?.default || window.IndentTune, 
                         config: {
                             minLevel: 0,
                             maxLevel: 4
@@ -47,7 +43,7 @@
                     },
                     underline: Underline,
                     textAlignment: {
-                        class: window.TextAlignment?.default || window.TextAlignment, // ✅ Correct reference
+                        class: window.TextAlignment?.default || window.TextAlignment,
                         config: {
                             default: "left",
                             levels: ["left", "center", "right", "justify"]
