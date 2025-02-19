@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js - Fixed Version</title>
+    <title>Editor.js - Fully Fixed</title>
 
     <!-- ✅ Load Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/editorjs-indent-tune@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-    
+
     <!-- ✅ Load Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 </head>
@@ -19,40 +19,42 @@
     <div id="editorjs"></div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("TextAlignmentBlockTune loaded:", window.TextAlignmentBlockTune);
-            console.log("IndentTune loaded:", window.IndentTune);
-            console.log("Paragraph loaded:", window.Paragraph);
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                console.log("TextAlignmentBlockTune loaded:", window.TextAlignmentBlockTune);
+                console.log("IndentTune loaded:", window.IndentTune);
+                console.log("Paragraph loaded:", window.Paragraph);
 
-            const editor = new EditorJS({
-                holder: 'editorjs',
-                autofocus: true,
-                tools: {
-                    paragraph: {
-                        class: window.Paragraph?.default || window.Paragraph,  // ✅ Fixed
-                        inlineToolbar: true
-                    },
-                    table: {
-                        class: Table,
-                        inlineToolbar: true
-                    },
-                    indent: {
-                        class: window.IndentTune?.default || window.IndentTune,  // ✅ Fixed
-                        config: {
-                            minLevel: 0,
-                            maxLevel: 4
-                        }
-                    },
-                    underline: Underline,
-                    textAlignment: {
-                        class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune,  // ✅ Fixed
-                        config: {
-                            default: "left",
-                            levels: ["left", "center", "right", "justify"]
+                const editor = new EditorJS({
+                    holder: 'editorjs',
+                    autofocus: true,
+                    tools: {
+                        paragraph: {
+                            class: window.Paragraph?.default || window.Paragraph,  // ✅ Fixed
+                            inlineToolbar: true
+                        },
+                        table: {
+                            class: Table,
+                            inlineToolbar: true
+                        },
+                        indent: {
+                            class: window.IndentTune?.default || window.IndentTune,  // ✅ Fixed
+                            config: {
+                                minLevel: 0,
+                                maxLevel: 4
+                            }
+                        },
+                        underline: Underline,
+                        textAlignment: {
+                            class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune,  // ✅ Fixed
+                            config: {
+                                default: "left",
+                                levels: ["left", "center", "right", "justify"]
+                            }
                         }
                     }
-                }
-            });
+                });
+            }, 1000);  // ⏳ Wait 1 second to ensure scripts are loaded
         });
     </script>
 </body>
