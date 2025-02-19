@@ -17,7 +17,7 @@
     <!-- Underline Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
 
-    <!-- Text Alignment Plugin -->
+    <!-- Text Alignment Plugin (Must be loaded before using it) -->
     <script src="https://cdn.jsdelivr.net/npm/editorjs-text-alignment-blocktune@latest"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("IndentTune loaded:", window.IndentTune); // Debugging
+            console.log("TextAlignmentBlockTune loaded:", window.TextAlignmentBlockTune); // Debugging
 
             const editor = new EditorJS({
                 holder: 'editorjs',
@@ -44,7 +44,7 @@
                         inlineToolbar: true
                     },
                     indent: {
-                        class: window.IndentTune?.default || window.IndentTune, // ✅ FIX: Use correct reference
+                        class: window.IndentTune?.default || window.IndentTune, // ✅ Fix IndentTune reference
                         config: {
                             minLevel: 0,
                             maxLevel: 4
@@ -52,7 +52,7 @@
                     },
                     underline: Underline,
                     textAlignment: {
-                        class: TextAlignmentBlockTune,
+                        class: window.TextAlignmentBlockTune?.default || window.TextAlignmentBlockTune, // ✅ Fix reference
                         config: {
                             default: "left",
                             levels: ["left", "center", "right", "justify"]
