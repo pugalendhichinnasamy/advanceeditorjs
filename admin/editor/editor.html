@@ -1,203 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js with Expandable Subheadings</title>
+import { useEffect, useRef, useState } from "react";
+import EditorJS from "@editorjs/editorjs";
+import Header from "@editorjs/header";
+import Table from "@editorjs/table";
+import List from "@editorjs/list";
 
-    <!-- Editor.js and Plugins -->
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script>
+const EDITOR_HOLDER_ID = "editor";
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 60%;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .subheading-container {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f9f9f9;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-        .subheading-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .editor-box {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background: #fff;
-            display: none;
-        }
-        .remove-btn, .clear-btn, .add-btn {
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .remove-btn { background: red; color: white; }
-        .clear-btn { background: orange; color: white; }
-        .add-btn { background: green; color: white; }
-        .checkbox {
-            transform: scale(1.5);
-            margin-right: 10px;
-        }
-        .number-input {
-            width: 50px;
-            padding: 5px;
-            text-align: center;
-            margin-left: 10px;
-        }
-        .subheading-title {
-            flex-grow: 1;
-            margin-left: 10px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Editor.js with Expandable Subheadings</h1>
-        <button class="clear-btn" onclick="clearAllData()">🗑️ Clear All</button>
-        <div id="main-editor"></div>
-    </div>
+const Editor = ({ data, setData }) => {
+  const ejInstance = useRef(null);
+  const [editorData, setEditorData] = useState(data);
 
-    <script>
-        const today = new Date();
-        const datePrefix = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+  useEffect(() => {
+    if (!ejInstance.current) {
+      initEditor();
+    }
 
-        let subheadings = JSON.parse(localStorage.getItem('subheadings')) || [
-            { title: "Name", number: 10, checked: false, content: JSON.stringify(defaultEditorContent()) },
-            { title: "Age", number: 11, checked: false, content: JSON.stringify(defaultEditorContent()) },
-            { title: "Address", number: 12, checked: false, content: JSON.stringify(defaultEditorContent()) }
-        ];
+    return () => {
+      if (ejInstance.current) {
+        ejInstance.current.destroy();
+        ejInstance.current = null;
+      }
+    };
+  }, []);
 
-        let innerEditors = {};
+  useEffect(() => {
+    setEditorData(data); // Ensure data updates when props change
+  }, [data]);
 
-        function defaultEditorContent() {
-            return {
-                blocks: [
-                    { type: "header", data: { text: "Default Heading", level: 2 } },
-                    { type: "paragraph", data: { text: "This is a sample paragraph with default text content." } }
-                ]
-            };
+  const initEditor = () => {
+    const editor = new EditorJS({
+      holder: EDITOR_HOLDER_ID,
+      logLevel: "ERROR",
+      data: editorData,
+      onReady: () => {
+        ejInstance.current = editor;
+      },
+      onChange: async () => {
+        try {
+          const outputData = await editor.save();
+          setData((prevState) => ({
+            ...prevState,
+            blocks: outputData.blocks,
+          }));
+          setEditorData(outputData);
+        } catch (error) {
+          console.error("Saving failed:", error);
         }
+      },
+      autofocus: true,
+      tools: {
+        header: {
+          class: Header,
+          config: {
+            placeholder: "Enter a header",
+            levels: [1],
+            defaultLevel: 1,
+          },
+        },
+        table: {
+          class: Table,
+          inlineToolbar: true,
+          config: {
+            rows: 2,
+            cols: 3,
+          },
+          data: {
+            withHeadings: true,
+          },
+        },
+        list: {
+          class: List,
+          inlineToolbar: true,
+          config: {
+            defaultStyle: "unordered",
+          },
+        },
+      },
+    });
+  };
 
-        function generateSubheadingID(title, number) {
-            const initials = title.slice(0, 2).toLowerCase();
-            return `${datePrefix}${initials}${number}`;
-        }
+  return <div id={EDITOR_HOLDER_ID} className="py-2 bg-white rounded-md h-fit" />;
+};
 
-        function sortSubheadings() {
-            subheadings.sort((a, b) => a.number - b.number);
-        }
+export default Editor;
 
-        function toggleEditor(index) {
-            let editorBox = document.getElementById(`editor-${index}`);
-            editorBox.style.display = editorBox.style.display === "block" ? "none" : "block";
-
-            if (!innerEditors[index]) {
-                initializeEditor(index);
-            }
-        }
-
-        function initializeEditor(index) {
-            innerEditors[index] = new EditorJS({
-                holder: `editor-${index}`,
-                tools: {
-                    header: Header,
-                    paragraph: Paragraph,
-                    table: Table,
-                    quote: Quote,
-                    underline: Underline,
-                    linkTool: LinkTool,
-                    image: ImageTool,
-                    code: CodeTool,
-                    inlineCode: InlineCode,
-                    marker: Marker
-                },
-                data: subheadings[index].content ? JSON.parse(subheadings[index].content) : defaultEditorContent(),
-                onChange: () => saveEditorData(index)
-            });
-        }
-
-        function updateNumber(index, newNumber) {
-            newNumber = parseInt(newNumber);
-            if (subheadings.some(sub => sub.number === newNumber)) {
-                alert("Number already exists! Please choose another.");
-                renderSubheadings();
-                return;
-            }
-            subheadings[index].number = newNumber;
-            sortSubheadings();
-            saveSubheadings();
-            renderSubheadings();
-        }
-
-        function createSubheadingBlock(subheading, index) {
-            const subheadingID = generateSubheadingID(subheading.title, subheading.number);
-            return `
-                <div class="subheading-container">
-                    <div class="subheading-header" onclick="toggleEditor(${index})">
-                        <input type="checkbox" class="checkbox" ${subheading.checked ? 'checked' : ''} onclick="event.stopPropagation()">
-                        <span class="subheading-title">${subheading.title} (${subheadingID})</span>
-                        <input type="number" class="number-input" value="${subheading.number}" onchange="updateNumber(${index}, this.value)">
-                        <button class="add-btn" onclick="event.stopPropagation(); addSubheading(${index})">➕</button>
-                        <button class="clear-btn" onclick="event.stopPropagation(); clearEditor(${index})">🗑️</button>
-                        <button class="remove-btn" onclick="event.stopPropagation(); removeSubheading(${index})">❌</button>
-                    </div>
-                    <div id="editor-${index}" class="editor-box"></div>
-                </div>`;
-        }
-
-        function renderSubheadings() {
-            sortSubheadings();
-            document.getElementById("main-editor").innerHTML = subheadings.map(createSubheadingBlock).join('');
-            subheadings.forEach((_, index) => initializeEditor(index));
-        }
-
-        function addSubheading(afterIndex) {
-            let newTitle = prompt("Enter subheading name:");
-            if (!newTitle) return;
-            let newNumber = subheadings[afterIndex].number + 1;
-            subheadings.splice(afterIndex + 1, 0, { title: newTitle, number: newNumber, checked: false, content: JSON.stringify(defaultEditorContent()) });
-            saveSubheadings();
-            renderSubheadings();
-        }
-
-        function saveSubheadings() {
-            localStorage.setItem('subheadings', JSON.stringify(subheadings));
-        }
-
-        renderSubheadings();
-    </script>
-</body>
-</html>
