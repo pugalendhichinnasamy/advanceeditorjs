@@ -66,16 +66,6 @@
         .remove-btn { background: red; color: white; }
         .clear-btn { background: orange; color: white; }
         .add-btn { background: green; color: white; }
-        .number-input {
-            width: 50px;
-            margin-left: 10px;
-            padding: 5px;
-            text-align: center;
-        }
-        .checkbox {
-            margin-right: 10px;
-            transform: scale(1.5);
-        }
         .subheading-title {
             flex-grow: 1;
             margin-left: 10px;
@@ -95,9 +85,9 @@
         const datePart = `${currentDate.getFullYear()}${String(currentDate.getMonth() + 1).padStart(2, '0')}${String(currentDate.getDate()).padStart(2, '0')}`;
 
         let subheadings = JSON.parse(localStorage.getItem('subheadings')) || [
-            { title: "Name", number: 10, checked: false, content: JSON.stringify(defaultEditorContent()) },
-            { title: "Age", number: 11, checked: false, content: JSON.stringify(defaultEditorContent()) },
-            { title: "Address", number: 12, checked: false, content: JSON.stringify(defaultEditorContent()) }
+            { title: "Name", content: JSON.stringify(defaultEditorContent()) },
+            { title: "Age", content: JSON.stringify(defaultEditorContent()) },
+            { title: "Address", content: JSON.stringify(defaultEditorContent()) }
         ];
 
         let innerEditors = {};
@@ -156,18 +146,13 @@
             }
         }
 
-        function generateUniqueID(title, number) {
-            let initials = title.substring(0, 2).toLowerCase();
-            return `${datePart}${initials}${number}`;
-        }
-
         function createSubheadingBlock(subheading, index) {
-            let uniqueID = generateUniqueID(subheading.title, subheading.number);
             return `
                 <div class="subheading-container" id="subheading-${index}">
                     <div class="subheading-header" onclick="toggleEditor(${index})">
-                        <span class="subheading-title">${subheading.title} (${uniqueID})</span>
+                        <span class="subheading-title">${subheading.title}</span>
                         <button class="add-btn" onclick="addSubheading(${index})">➕</button>
+                        <button class="clear-btn" onclick="clearEditor(${index})">🗑️</button>
                         <button class="remove-btn" onclick="removeSubheading(${index})">❌</button>
                     </div>
                     <div id="editor-${index}" class="editor-box"></div>
@@ -175,7 +160,6 @@
         }
 
         function renderSubheadings() {
-            subheadings.sort((a, b) => a.number - b.number);
             let mainEditorContainer = document.getElementById("main-editor");
             mainEditorContainer.innerHTML = subheadings.map((sub, index) => createSubheadingBlock(sub, index)).join('');
         }
@@ -184,7 +168,7 @@
             let newTitle = prompt("Enter subheading name:");
             if (!newTitle) return;
 
-            subheadings.splice(afterIndex + 1, 0, { title: newTitle, number: subheadings.length + 10, checked: false, content: JSON.stringify(defaultEditorContent()) });
+            subheadings.splice(afterIndex + 1, 0, { title: newTitle, content: JSON.stringify(defaultEditorContent()) });
 
             saveSubheadings();
             renderSubheadings();
@@ -195,6 +179,16 @@
                 subheadings.splice(index, 1);
                 saveSubheadings();
                 renderSubheadings();
+            }
+        }
+
+        function clearEditor(index) {
+            if (confirm("Clear this subheading's content?")) {
+                if (innerEditors[index]) {
+                    innerEditors[index].clear();
+                }
+                subheadings[index].content = JSON.stringify(defaultEditorContent());
+                saveSubheadings();
             }
         }
 
@@ -214,4 +208,3 @@
     </script>
 </body>
 </html>
-
