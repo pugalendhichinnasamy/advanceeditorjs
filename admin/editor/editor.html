@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor.js Nested Example</title>
+    <title>Editor.js with Collapsible Sections</title>
     
     <!-- Load Editor.js -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
@@ -11,14 +11,61 @@
     <!-- Load Required Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .accordion {
+            background: #f1f1f1;
+            color: #333;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            transition: 0.4s;
+            margin-bottom: 5px;
+        }
+        .accordion.active {
+            background: #ccc;
+        }
+        .panel {
+            display: none;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
 
-    <div id="editorjs"></div>
+    <h2>Investment Banking Course</h2>
+
+    <!-- Sections with Dropdowns -->
+    <button class="accordion">Investment Banking Product and Services</button>
+    <div class="panel" id="editor-container-1"></div>
+
+    <button class="accordion">Regulatory Environment</button>
+    <div class="panel" id="editor-container-2"></div>
+
+    <button class="accordion">IB Operation & OTC Products</button>
+    <div class="panel" id="editor-container-3"></div>
+
+    <button class="accordion">Risk Management in Investment Banking Operations</button>
+    <div class="panel" id="editor-container-4"></div>
+
+    <button class="accordion">Technology and Innovation in Investment Banking Operations</button>
+    <div class="panel" id="editor-container-5"></div>
+
+    <button class="accordion">Career Development</button>
+    <div class="panel" id="editor-container-6"></div>
 
     <script>
-        // Function to create a nested editor instance inside a section
-        function createNestedEditor(containerId) {
+        // Function to create an Editor.js instance inside a section
+        function createEditor(containerId) {
             return new EditorJS({
                 holder: containerId,
                 placeholder: 'Add details here...',
@@ -34,109 +81,32 @@
             });
         }
 
-        // Initialize the main Editor.js instance
-        const mainEditor = new EditorJS({
-            holder: 'editorjs',
-            tools: {
-                header: {
-                    class: Header,
-                    inlineToolbar: true
-                },
-                paragraph: {
-                    class: Paragraph
-                }
-            },
-            data: {
-                blocks: [
-                    {
-                        type: "header",
-                        data: {
-                            text: "Investment Banking Product and Services",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-1'></div>"
-                        }
-                    },
-                    {
-                        type: "header",
-                        data: {
-                            text: "Regulatory Environment",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-2'></div>"
-                        }
-                    },
-                    {
-                        type: "header",
-                        data: {
-                            text: "IB Operation & OTC Products",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-3'></div>"
-                        }
-                    },
-                    {
-                        type: "header",
-                        data: {
-                            text: "Risk Management in Investment Banking Operations",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-4'></div>"
-                        }
-                    },
-                    {
-                        type: "header",
-                        data: {
-                            text: "Technology and Innovation in Investment Banking Operations",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-5'></div>"
-                        }
-                    },
-                    {
-                        type: "header",
-                        data: {
-                            text: "Career Development",
-                            level: 2
-                        }
-                    },
-                    {
-                        type: "paragraph",
-                        data: {
-                            text: "<div id='nested-editor-6'></div>"
+        // Accordion Functionality
+        document.addEventListener("DOMContentLoaded", function () {
+            let accordions = document.querySelectorAll(".accordion");
+            let editors = {}; // Store editor instances
+
+            accordions.forEach((accordion, index) => {
+                let panel = accordion.nextElementSibling;
+                let editorId = `editor-container-${index + 1}`;
+
+                accordion.addEventListener("click", function () {
+                    // Toggle active class
+                    this.classList.toggle("active");
+
+                    // Expand or collapse
+                    if (panel.style.display === "block") {
+                        panel.style.display = "none";
+                    } else {
+                        panel.style.display = "block";
+
+                        // Load Editor.js instance if not already loaded
+                        if (!editors[editorId]) {
+                            editors[editorId] = createEditor(editorId);
                         }
                     }
-                ]
-            },
-            onReady: () => {
-                // Initialize nested editors after the main editor is ready
-                createNestedEditor("nested-editor-1");
-                createNestedEditor("nested-editor-2");
-                createNestedEditor("nested-editor-3");
-                createNestedEditor("nested-editor-4");
-                createNestedEditor("nested-editor-5");
-                createNestedEditor("nested-editor-6");
-            }
+                });
+            });
         });
     </script>
 
