@@ -113,24 +113,28 @@
             editorBox.style.display = editorBox.style.display === "block" ? "none" : "block";
 
             if (!innerEditors[index]) {
-                innerEditors[index] = new EditorJS({
-                    holder: `editor-${index}`,
-                    tools: {
-                        header: Header,
-                        paragraph: Paragraph,
-                        table: Table,
-                        quote: Quote,
-                        underline: Underline,
-                        linkTool: LinkTool,
-                        image: ImageTool,
-                        code: CodeTool,
-                        inlineCode: InlineCode,
-                        marker: Marker
-                    },
-                    data: subheadings[index].content ? JSON.parse(subheadings[index].content) : defaultEditorContent(),
-                    onChange: () => saveEditorData(index)
-                });
+                initializeEditor(index);
             }
+        }
+
+        function initializeEditor(index) {
+            innerEditors[index] = new EditorJS({
+                holder: `editor-${index}`,
+                tools: {
+                    header: Header,
+                    paragraph: Paragraph,
+                    table: Table,
+                    quote: Quote,
+                    underline: Underline,
+                    linkTool: LinkTool,
+                    image: ImageTool,
+                    code: CodeTool,
+                    inlineCode: InlineCode,
+                    marker: Marker
+                },
+                data: subheadings[index].content ? JSON.parse(subheadings[index].content) : defaultEditorContent(),
+                onChange: () => saveEditorData(index)
+            });
         }
 
         function saveEditorData(index) {
@@ -162,24 +166,18 @@
         function renderSubheadings() {
             let mainEditorContainer = document.getElementById("main-editor");
             mainEditorContainer.innerHTML = subheadings.map((sub, index) => createSubheadingBlock(sub, index)).join('');
+            subheadings.forEach((_, index) => initializeEditor(index));
         }
 
-        function toggleCheck(index, event) {
-            event.stopPropagation();
-            subheadings[index].checked = event.target.checked;
-            saveSubheadings();
-        }
-
-        function updateNumber(index, newValue) {
-            subheadings[index].number = parseInt(newValue, 10);
-            saveSubheadings();
+        function getNextNumber() {
+            return subheadings.length ? Math.max(...subheadings.map(sub => sub.number)) + 1 : 10;
         }
 
         function addSubheading(afterIndex) {
             let newTitle = prompt("Enter subheading name:");
             if (!newTitle) return;
 
-            subheadings.splice(afterIndex + 1, 0, { title: newTitle, number: 10, checked: false, content: JSON.stringify(defaultEditorContent()) });
+            subheadings.splice(afterIndex + 1, 0, { title: newTitle, number: getNextNumber(), checked: false, content: JSON.stringify(defaultEditorContent()) });
 
             saveSubheadings();
             renderSubheadings();
@@ -197,6 +195,7 @@
             if (confirm("Clear this subheading's content?")) {
                 subheadings[index].content = JSON.stringify(defaultEditorContent());
                 saveSubheadings();
+                renderSubheadings();
             }
         }
 
