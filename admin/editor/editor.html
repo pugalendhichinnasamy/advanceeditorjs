@@ -110,35 +110,26 @@
 
         function toggleEditor(index) {
             let editorBox = document.getElementById(`editor-${index}`);
-            let isVisible = editorBox.style.display === "block";
+            editorBox.style.display = editorBox.style.display === "block" ? "none" : "block";
 
-            if (isVisible) {
-                editorBox.style.display = "none"; // Collapse
-            } else {
-                editorBox.style.display = "block"; // Expand
-                
-                if (!innerEditors[index]) {
-                    innerEditors[index] = new EditorJS({
-                        holder: `editor-${index}`,
-                        tools: {
-                            header: Header,
-                            paragraph: {
-                                class: Paragraph,
-                                inlineToolbar: ["bold", "italic", "underline", "marker", "inlineCode"]
-                            },
-                            table: Table,
-                            quote: Quote,
-                            underline: Underline,
-                            linkTool: LinkTool,
-                            image: ImageTool,
-                            code: CodeTool,
-                            inlineCode: InlineCode,
-                            marker: Marker
-                        },
-                        data: subheadings[index].content ? JSON.parse(subheadings[index].content) : defaultEditorContent(),
-                        onChange: () => saveEditorData(index)
-                    });
-                }
+            if (!innerEditors[index]) {
+                innerEditors[index] = new EditorJS({
+                    holder: `editor-${index}`,
+                    tools: {
+                        header: Header,
+                        paragraph: Paragraph,
+                        table: Table,
+                        quote: Quote,
+                        underline: Underline,
+                        linkTool: LinkTool,
+                        image: ImageTool,
+                        code: CodeTool,
+                        inlineCode: InlineCode,
+                        marker: Marker
+                    },
+                    data: subheadings[index].content ? JSON.parse(subheadings[index].content) : defaultEditorContent(),
+                    onChange: () => saveEditorData(index)
+                });
             }
         }
 
@@ -160,9 +151,9 @@
                         <input type="checkbox" class="checkbox" ${subheading.checked ? 'checked' : ''} onclick="toggleCheck(${index}, event)">
                         <span class="subheading-title">${subheading.title}</span>
                         <input type="number" class="number-input" value="${subheading.number}" onchange="updateNumber(${index}, this.value)">
-                        <button class="add-btn" onclick="addSubheading(${index})">➕</button>
-                        <button class="clear-btn" onclick="clearEditor(${index})">🗑️</button>
-                        <button class="remove-btn" onclick="removeSubheading(${index})">❌</button>
+                        <button class="add-btn" onclick="event.stopPropagation(); addSubheading(${index})">➕</button>
+                        <button class="clear-btn" onclick="event.stopPropagation(); clearEditor(${index})">🗑️</button>
+                        <button class="remove-btn" onclick="event.stopPropagation(); removeSubheading(${index})">❌</button>
                     </div>
                     <div id="editor-${index}" class="editor-box"></div>
                 </div>`;
@@ -174,6 +165,7 @@
         }
 
         function toggleCheck(index, event) {
+            event.stopPropagation();
             subheadings[index].checked = event.target.checked;
             saveSubheadings();
         }
