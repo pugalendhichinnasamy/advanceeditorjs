@@ -55,7 +55,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             background: #fff;
-            display: none; /* Initially hidden */
+            display: none;
         }
         .remove-btn, .clear-btn, .add-btn {
             padding: 5px 10px;
@@ -66,6 +66,16 @@
         .remove-btn { background: red; color: white; }
         .clear-btn { background: orange; color: white; }
         .add-btn { background: green; color: white; }
+        .checkbox {
+            transform: scale(1.5);
+            margin-right: 10px;
+        }
+        .number-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+            margin-left: 10px;
+        }
         .subheading-title {
             flex-grow: 1;
             margin-left: 10px;
@@ -81,13 +91,10 @@
     </div>
 
     <script>
-        let currentDate = new Date();
-        const datePart = `${currentDate.getFullYear()}${String(currentDate.getMonth() + 1).padStart(2, '0')}${String(currentDate.getDate()).padStart(2, '0')}`;
-
         let subheadings = JSON.parse(localStorage.getItem('subheadings')) || [
-            { title: "Name", content: JSON.stringify(defaultEditorContent()) },
-            { title: "Age", content: JSON.stringify(defaultEditorContent()) },
-            { title: "Address", content: JSON.stringify(defaultEditorContent()) }
+            { title: "Name", number: 10, checked: false, content: JSON.stringify(defaultEditorContent()) },
+            { title: "Age", number: 11, checked: false, content: JSON.stringify(defaultEditorContent()) },
+            { title: "Address", number: 12, checked: false, content: JSON.stringify(defaultEditorContent()) }
         ];
 
         let innerEditors = {};
@@ -110,7 +117,7 @@
             } else {
                 editorBox.style.display = "block"; // Expand
                 
-                if (!innerEditors[index]) { // Initialize Editor.js if not already created
+                if (!innerEditors[index]) {
                     innerEditors[index] = new EditorJS({
                         holder: `editor-${index}`,
                         tools: {
@@ -148,9 +155,11 @@
 
         function createSubheadingBlock(subheading, index) {
             return `
-                <div class="subheading-container" id="subheading-${index}">
+                <div class="subheading-container">
                     <div class="subheading-header" onclick="toggleEditor(${index})">
+                        <input type="checkbox" class="checkbox" ${subheading.checked ? 'checked' : ''} onclick="toggleCheck(${index}, event)">
                         <span class="subheading-title">${subheading.title}</span>
+                        <input type="number" class="number-input" value="${subheading.number}" onchange="updateNumber(${index}, this.value)">
                         <button class="add-btn" onclick="addSubheading(${index})">➕</button>
                         <button class="clear-btn" onclick="clearEditor(${index})">🗑️</button>
                         <button class="remove-btn" onclick="removeSubheading(${index})">❌</button>
@@ -164,11 +173,21 @@
             mainEditorContainer.innerHTML = subheadings.map((sub, index) => createSubheadingBlock(sub, index)).join('');
         }
 
+        function toggleCheck(index, event) {
+            subheadings[index].checked = event.target.checked;
+            saveSubheadings();
+        }
+
+        function updateNumber(index, newValue) {
+            subheadings[index].number = parseInt(newValue, 10);
+            saveSubheadings();
+        }
+
         function addSubheading(afterIndex) {
             let newTitle = prompt("Enter subheading name:");
             if (!newTitle) return;
 
-            subheadings.splice(afterIndex + 1, 0, { title: newTitle, content: JSON.stringify(defaultEditorContent()) });
+            subheadings.splice(afterIndex + 1, 0, { title: newTitle, number: 10, checked: false, content: JSON.stringify(defaultEditorContent()) });
 
             saveSubheadings();
             renderSubheadings();
@@ -184,20 +203,15 @@
 
         function clearEditor(index) {
             if (confirm("Clear this subheading's content?")) {
-                if (innerEditors[index]) {
-                    innerEditors[index].clear();
-                }
                 subheadings[index].content = JSON.stringify(defaultEditorContent());
                 saveSubheadings();
             }
         }
 
         function clearAllData() {
-            if (confirm("Clear all data?")) {
-                localStorage.clear();
-                subheadings = [];
-                renderSubheadings();
-            }
+            localStorage.clear();
+            subheadings = [];
+            renderSubheadings();
         }
 
         function saveSubheadings() {
